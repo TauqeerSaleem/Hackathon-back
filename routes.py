@@ -11,14 +11,15 @@ def update_doc(data: CodeInput):
     print("Received code:", data.text)
     return {"message": "Code received"}
 
-# ✅ ADD THIS BELOW
 class PasteData(BaseModel):
     text: str
     startLine: int
     endLine: int
+    source: str
 
 @router.post("/paste-log")
 def log_paste(data: PasteData):
     print(f"\nPaste detected from line {data.startLine} to {data.endLine}:")
-    print(data.text)
+    print(f"Copied Code:\n{data.text}")
+    print(f"Source: {data.source}")
     return {"message": "Paste logged"}
