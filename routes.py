@@ -1,25 +1,11 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
+from fastapi import FastAPI
+from ai_handler import fetch_ai_response
+import asyncio
 
-router = APIRouter()
+app = FastAPI()
 
-class CodeInput(BaseModel):
-    text: str
-
-@router.post("/update-doc")
-def update_doc(data: CodeInput):
-    print("Received code:", data.text)
-    return {"message": "Code received"}
-
-class PasteData(BaseModel):
-    text: str
-    startLine: int
-    endLine: int
-    source: str
-
-@router.post("/paste-log")
-def log_paste(data: PasteData):
-    print(f"\nPaste detected from line {data.startLine} to {data.endLine}:")
-    print(f"Copied Code:\n{data.text}")
-    print(f"Source: {data.source}")
-    return {"message": "Paste logged"}
+@app.post("/chat/")
+async def chat_endpoint(user_input: dict):
+    prompt = user_input.get("prompt", "")
+    ai_response = await fetch_ai_response(prompt)
+    return {"response": ai_response}
