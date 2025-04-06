@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from ai_handler import fetch_ai_response
 
 router = APIRouter()
@@ -9,7 +9,7 @@ router = APIRouter()
 #     ai_response = await fetch_ai_response(prompt)
 #     return {"response": ai_response}
 
-@app.post("/chat/")
+@router.post("/chat/")
 async def chat_endpoint(req: Request):
     body = await req.json()
     prompt = body.get("prompt", "")
@@ -29,4 +29,4 @@ async def chat_endpoint(req: Request):
         year=year,
         career_goal=career_goal
     )
-    return {"response": ai_respons
+    return {"response": ai_response}
