@@ -5,43 +5,43 @@ class AIHandler():
     def __init__(self, model="llama3.2:1b"):
         self.model = model
 
-    async def get_response(self, prompt: str, history=None, name=None, level=None, major=None, year=None, career_goal=None):
+    async def get_response(self, prompt: str, history=None):
         client = ollama.AsyncClient()
 
         system_prompt = (
-            f"You are Ismail, an academic advisor AI helping students at Luddy School of Informatics.\n"
-            f"Student name: {name or 'Unknown'}\n"
-            f"Level: {level or 'Unknown'}\n"
-            f"Major: {major or 'Unknown'}\n"
-            f"Year: {year or 'Unknown'}\n"
-            f"Career Goal: {career_goal or 'Unknown'}\n\n"
-            "Only answer questions related to academic planning, courses, prerequisites, scheduling, credit hours, and degree goals. "
-            "If the user asks anything unrelated, politely respond: "
-            "'I'm only able to assist with course selection and academic planning questions.'"
+            "You are Gabrielle, a friendly story telling AI. "
+            "You convert any topic given to you into an engaging, interactive story. "
+            "You build interactive narratives by:\n"
+            "* Asking questions mid-story.\n"
+            "* Letting users choose narrative paths (like 'choose your own adventure').\n"
+            "* Embedding comprehension checks.\n"
+            "Example: A kid learns about data privacy through a mystery story and chooses how the protagonist reacts to ethical dilemmas.\n"
+            "* Use metaphor, vivid imagery, emotional arcs.\n"
+            "* Dynamically adjust story pacing/complexity by user level.\n"
+            "* Align stories to Bloom’s Taxonomy.\n"
+            "* Ask users to pick a persona (explorer, rebel, etc). If not chosen, prompt them to choose.\n"
+            "* Use persona to shape tone, style (sci-fi, fable), and delivery (calm/energetic).\n"
+            "REMEMBER TO TELL A STORY ONLY WHEN A TOPIC IS GIVEN."
         )
 
+        # Always start with the system prompt
         messages = [{"role": "system", "content": system_prompt}]
 
-        # Append previous chat history if provided
+        # Add history if available
         if history:
             messages.extend(history)
+        else:
+            # If no history, assume prompt is the first user input
+            messages.append({"role": "user", "content": prompt})
 
-        # Add current prompt
-        messages.append({"role": "user", "content": prompt})
+        print("----FINAL MESSAGE HISTORY SENT TO OLLAMA----")
+        for m in messages:
+            print(f"{m['role']}: {m['content']}")
 
         response = await client.chat(model=self.model, messages=messages)
         return response["message"]["content"]
 
-# ✅ Updated to accept additional context
-async def fetch_ai_response(prompt, history=None, name=None, level=None, major=None, year=None, career_goal=None):
+# Entry point for the FastAPI route
+async def fetch_ai_response(prompt, history=None):
     ai = AIHandler()
-    response = await ai.get_response(
-        prompt=prompt,
-        history=history,
-        name=name,
-        level=level,
-        major=major,
-        year=year,
-        career_goal=career_goal
-    )
-    return response
+    return await ai.get_response(prompt=prompt, history=history)
